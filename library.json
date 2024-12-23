@@ -41,7 +41,7 @@
   "license": "MIT",
   "frameworks": "arduino",
   "platforms": "atmelavr",
-  "headers": "UIRBcore.h",
+  "headers": "UIRBcore.hpp",
   "build":{
       "flags": [
           "-DUIRB_CORE_LIB"
