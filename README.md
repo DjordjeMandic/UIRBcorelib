@@ -28,7 +28,7 @@ Add UIRBcore to your `platformio.ini` file using one of the following approaches
 
 ```ini
 lib_deps =
-    DjordjeMandic/UIRBcorelib @ ^1.0.0  ; Depend on the latest 1.x stable version
+    djordjemandic/UIRBcorelib @ ^1.0.0  ; Depend on the latest 1.x stable version
 ```
 
 > **Tip:** Learn more about semantic versioning at [devhints.io/semver](https://devhints.io/semver) and [semver.org](https://semver.org/).
