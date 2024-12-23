@@ -24,33 +24,21 @@ To use UIRBcore, ensure you have the following:
 
 ### Using PlatformIO Library Manager
 
-1. Open your PlatformIO project.
-2. Add UIRBcore to your `platformio.ini` file using one of the following approaches:
+Add UIRBcore to your `platformio.ini` file using one of the following approaches:
 
 ```ini
 lib_deps =
-    DjordjeMandic/UIRBcorelib @ ^1.0.0 ; Depend on the latest 1.x stable version
+    DjordjeMandic/UIRBcorelib @ ^1.0.0  ; Depend on the latest 1.x stable version
 ```
+
+> **Tip:** Learn more about semantic versioning at [devhints.io/semver](https://devhints.io/semver) and [semver.org](https://semver.org/).
 
 ```ini
 lib_deps =
-    DjordjeMandic/UIRBcorelib @ 1.0.0 ; Depend on the exact 1.0.0 version
+    https://github.com/DjordjeMandic/UIRBcorelib.git#dev  ; Depend on the development Git branch
 ```
 
-```ini
-lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.0.0 ; Depend on a specific Git tag
-```
-
-```ini
-lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#release ; Depend on a release Git branch
-```
-
-```ini
-lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#dev ; Depend on a dev Git branch
-```
+> **Tip:** Discover more about specifying packages in PlatformIO by visiting the [official documentation on package specifications](https://docs.platformio.org/en/latest/core/userguide/pkg/cmd_install.html#package-specifications).
 
 ### Manually
 
@@ -91,13 +79,18 @@ void loop()
 }
 ```
 
-**Important:** The ATMEGA328P EEPROM must store a valid hardware version for the UIRB constructor to initialize correctly. If the EEPROM does not contain valid data, the constructor will cause the system to hang and reboot.
+> **Important:** The ATMEGA328P EEPROM must store a valid hardware version for the UIRB constructor to initialize correctly. If the EEPROM does not contain valid data, the constructor will cause the system to hang and reboot.
 
-**Note:** For IR signal transmission and reception, use compatible external libraries.
+> **Note:** For IR signal transmission and reception, use compatible external libraries.
 
 ## Examples
 
-Check the provided example sketches ([`Basic`](./examples/Basic) and [`Calibration`](./examples/Calibration)) in the library, located within examples folder, to better understand how to use UIRBcore in your projects.
+Explore the provided example sketches:
+
+- [`Basic`](./examples/Basic): A basic implementation of the UIRBcore library.
+- [`Calibration`](./examples/Calibration): Demonstrates how to calibrate and configure the system.
+
+These examples are located within the [`examples`](./examples) folder of the library.
 
 ## Configuration
 
@@ -117,9 +110,9 @@ The script [`update_version.py`](./scripts/update_version.py) updates [`UIRBcore
 python ./scripts/update_version.py
 ```
 
-**Note:** All scripts should be executed from the root of the repository.
+> **Note:** All scripts should be executed from the root of the repository.
 
-**Note:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation.
+> **Limitation:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation.
 
 ## Contribution
 
