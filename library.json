@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
+  "name": "UIRBcorelib",
+  "version": "1.0.0",
+  "description": "Universal IR Blaster core library for Arduino.",
+  "keywords": [
+    "uirb",
+    "core",
+    "library",
+    "infrared",
+    "blaster",
+    "universal",
+    "ir"
+  ],
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/DjordjeMandic/UIRBcorelib.git",
+    "branch": "release"
+  },
+  "authors":
+  [
+    {
+      "name": "Djordje Mandic",
+      "url": "https://linktr.ee/djordjemandic",
+      "maintainer": true
+    }
+  ],
+  "examples": [
+    {
+      "name": "Basic",
+      "base": "examples/Basic",
+      "files": ["Basic.ino", "platformio.ini"]
+    },
+    {
+      "name": "Calibration",
+      "base": "examples/Calibration",
+      "files": ["Calibration.ino", "platformio.ini"]
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "atmelavr",
+  "headers": "UIRBcore.h",
+  "build":{
+      "flags": [
+          "-DUIRB_CORE_LIB"
+      ],
+      "libLDFMode": "deep"
+  },
+  "scripts": {
+      "postinstall": ["scripts/update_version.py"]
+  }
+}
