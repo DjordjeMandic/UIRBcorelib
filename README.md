@@ -42,6 +42,16 @@ lib_deps =
     https://github.com/DjordjeMandic/UIRBcorelib.git#v1.0.0 ; Depend on a specific Git tag
 ```
 
+```ini
+lib_deps =
+    https://github.com/DjordjeMandic/UIRBcorelib.git#release ; Depend on a release Git branch
+```
+
+```ini
+lib_deps =
+    https://github.com/DjordjeMandic/UIRBcorelib.git#dev ; Depend on a dev Git branch
+```
+
 ### Manually
 
 1. Download the latest release from the [UIRBcore GitHub repository](https://github.com/DjordjeMandic/UIRBcorelib).
