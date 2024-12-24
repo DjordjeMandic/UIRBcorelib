@@ -6,6 +6,8 @@ UIRBcore is an Arduino library tailored for managing the Universal Infrared Blas
 
 This library is designed with PlatformIO in mind and requires the **uirb-v02-atmega328p** custom board definition or the `-DUIRB_BOARD_V02` flag supplied during compilation.
 
+---
+
 ## Features
 
 - **Power Management**: Built-in support for monitoring battery voltage and charging states.
@@ -13,12 +15,16 @@ This library is designed with PlatformIO in mind and requires the **uirb-v02-atm
 - **EEPROM Management**: Efficient storage and retrieval of configuration data.
 - **PlatformIO Support**: Optimized for PlatformIO projects, ensuring robust build and dependency management.
 
+---
+
 ## Prerequisites
 
 To use UIRBcore, ensure you have the following:
 
 1. [PlatformIO](https://platformio.org/) installed.
 2. The custom board definition for **uirb-v02-atmega328p** installed. You will need to provide a path to the definition during project setup. (A repository link with more information will be added here in the future.)
+
+---
 
 ## Installation
 
@@ -28,14 +34,14 @@ Add UIRBcore to your `platformio.ini` file using one of the following approaches
 
 ```ini
 lib_deps =
-    djordjemandic/UIRBcorelib @ ^1.0.0  ; Depend on the latest 1.x stable version
+    djordjemandic/UIRBcorelib @ ^1.1.0  ; Depend on the latest 1.x stable version
 ```
 
 > **Tip:** Learn more about semantic versioning at [devhints.io/semver](https://devhints.io/semver) and [semver.org](https://semver.org/).
 
 ```ini
 lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#dev  ; Depend on the development Git branch
+    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.1.0  ; Depend on the v1.1.0 Git tag
 ```
 
 > **Tip:** Discover more about specifying packages in PlatformIO by visiting the [official documentation on package specifications](https://docs.platformio.org/en/latest/core/userguide/pkg/cmd_install.html#package-specifications).
@@ -44,6 +50,8 @@ lib_deps =
 
 1. Download the latest release from the [UIRBcore GitHub repository](https://github.com/DjordjeMandic/UIRBcorelib).
 2. Place the library folder in your project’s `lib` directory.
+
+---
 
 ## Usage
 
@@ -83,44 +91,71 @@ void loop()
 
 > **Note:** For IR signal transmission and reception, use compatible external libraries.
 
+---
+
 ## Examples
 
 Explore the provided example sketches:
 
 - [`Basic`](./examples/Basic): A basic implementation of the UIRBcore library.
 - [`Calibration`](./examples/Calibration): Demonstrates how to calibrate and configure the system.
+- [`BypassEEPROM`](./examples/BypassEEPROM): Shows how to bypass EEPROM validation using `#define UIRB_EEPROM_BYPASS_DEBUG`.
 
 These examples are located within the [`examples`](./examples) folder of the library.
+
+---
 
 ## Configuration
 
 The library uses fixed pin assignments predefined for the UIRB V0.2 board. Refer to the source code for exact pin mappings.
 
+---
+
 ## Doxygen Documentation and Scripts
 
-This project uses Doxygen for documentation. Use the script [`doxygen_generate.ps1`](./scripts/doxygen_generate.ps1) to generate the documentation:
+### Version Management
 
-```powershell
-pwsh ./scripts/doxygen_generate.ps1 Doxyfile
-```
-
-The script [`update_version.py`](./scripts/update_version.py) updates [`UIRBcore_Version.h`](./include/UIRBcore_Version.h) with the latest Git tag/commit information. To run the script, use the following command:
+Update version information in [`UIRBcore_Version.h`](./include/UIRBcore_Version.h) using the script [`update_version.py`](./scripts/update_version.py):
 
 ```bash
 python ./scripts/update_version.py
 ```
 
+### Documentation
+
+This project uses Doxygen for documentation. Use the script [`doxygen_generate.ps1`](./scripts/doxygen_generate.ps1) to generate the documentation:
+
+```powershell
+pwsh ./scripts/doxygen_generate.ps1 Doxyfile -OpenHTML
+```
+
+```powershell
+pwsh ./scripts/doxygen_generate.ps1 Doxyfile -UpdateVersion -OpenHTML
+```
+
+> **Details:**
+> - **UpdateVersion**: Updates the `UIRBcore_Version.h` file using `update_version.py`.
+> - **OpenHTML**: Opens the `index.html` file in the `docs/html` directory after successful generation.
+> - Ensure the script and its dependencies (`git_info.ps1`, `update_version.py`) are properly configured and placed in the `scripts` directory.
+> - Requires Git, Python, and Doxygen installed and accessible via the command line.
+
 > **Note:** All scripts should be executed from the root of the repository.
 
-> **Limitation:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation.
+> **Limitation:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation. However, this limitation can be mitigated using `#define UIRB_EEPROM_BYPASS_DEBUG` and `#define UIRB_EEPROM_RPROG_DEBUG`.
+
+---
 
 ## Contribution
 
 Contributions are welcome! If you have ideas for improvements or encounter issues, please open an issue or submit a pull request on the [GitHub repository](https://github.com/DjordjeMandic/UIRBcorelib).
 
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+---
 
 ## Acknowledgments
 
