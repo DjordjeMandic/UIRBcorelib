@@ -1,0 +1,19 @@
+name: Publish Library to PlatformIO
+
+on:
+  push:
+    tags:
+      - 'v*'   # Trigger this workflow only for tags matching the pattern "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Publish to PlatformIO
+        uses: bojit/platformio-publish@v1.0.0
+        with:
+          token: ${{ secrets.PLATFORMIO_TOKEN }}
