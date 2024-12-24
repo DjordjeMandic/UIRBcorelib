@@ -1,10 +1,18 @@
 /**
  * @file EEPROMDataManager.cpp
- * @brief Implementation of EEPROM data managment class and associated functions for managing configuration data in EEPROM.
+ * @brief Implementation of EEPROM data management class and associated functions for managing configuration data in EEPROM.
  * 
  * This file contains the implementation of the @ref uirbcore::eeprom::EEPROMDataManager class, which provides high-level
  * access and management of the EEPROM memory for storing and retrieving hardware configuration,
  * metadata, and runtime statistics for the %UIRB system.
+ * 
+ * @details
+ * - The @ref UIRB_EEPROM_BYPASS_DEBUG macro allows all EEPROM operations to be redirected to RAM for debugging purposes, 
+ *   ensuring data persistence is emulated without requiring physical EEPROM.
+ * - The @ref UIRB_EEPROM_RPROG_DEBUG macro enables debugging of the charger programming resistor value (`Rprog`) by 
+ *   setting it to a specific value during runtime. This is especially useful in simulations or for testing different configurations.
+ * 
+ * @note Both macros are intended for debugging and testing scenarios. Refer to their documentation for detailed usage guidelines.
  * 
  * @author 
  * Djordje Mandic (https://linktr.ee/djordjemandic)
@@ -37,11 +45,49 @@
  * SOFTWARE.
  */
 #include <Arduino.h>
-#include <EEPROM.h>
+#include <UIRBcore_Defs.h>
 #include <UIRBcore_EEPROM.hpp>
+
+#if !defined(UIRB_EEPROM_BYPASS_DEBUG)
+    #include <EEPROM.h>
+#endif  // !defined(UIRB_EEPROM_BYPASS_DEBUG)
 
 namespace uirbcore::eeprom
 {
+#if defined(UIRB_EEPROM_BYPASS_DEBUG) || defined(__DOXYGEN__)
+    /**
+     * @brief Active emulated EEPROM data used when @ref UIRB_EEPROM_BYPASS_DEBUG is enabled.
+     * 
+     * This variable serves as the in-memory representation of the EEPROM data when the 
+     * @ref UIRB_EEPROM_BYPASS_DEBUG macro is defined. It is initialized to the default 
+     * values specified in @ref DEBUG_EEPROM_DATA and acts as a substitute for EEPROM storage 
+     * during debugging or simulations.
+     * 
+     * @details
+     * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, all EEPROM-related operations 
+     *   are redirected to this in-memory structure instead of actual EEPROM.
+     * - The variable is initialized with @ref DEBUG_EEPROM_DATA, ensuring that all fields 
+     *   are set to safe defaults for debugging purposes.
+     * - This variable provides full functionality for EEPROM operations in RAM while avoiding 
+     *   modifications to actual EEPROM.
+     * 
+     * @note
+     * - Data stored in @ref EEPROM_DATA is volatile and will not persist between reboots 
+     *   or power cycles.
+     * - This variable is defined only when @ref UIRB_EEPROM_BYPASS_DEBUG is enabled.
+     * 
+     * @warning
+     * - Do not use this variable in production environments; it is intended for debugging 
+     *   and simulation scenarios only.
+     * - Ensure that the values in @ref DEBUG_EEPROM_DATA are appropriate for your testing 
+     *   and debugging use cases.
+     * 
+     * @see @ref DEBUG_EEPROM_DATA for the default debug data values.
+     * @see @ref UIRB_EEPROM_BYPASS_DEBUG for enabling RAM-based EEPROM emulation.
+     */
+    static EEPROMData EEPROM_DATA = DEBUG_EEPROM_DATA;
+#endif // defined(UIRB_EEPROM_BYPASS_DEBUG) || defined(__DOXYGEN__)
+
     // Compare two EEPROMData structures for equality
     bool operator==(const EEPROMData& lhs, const EEPROMData& rhs)
     {
@@ -77,7 +123,11 @@ namespace uirbcore::eeprom
 
     EEPROMDataManager::EEPROMDataManager()
     {
+    #if defined(UIRB_EEPROM_BYPASS_DEBUG)
+        this->eeprom_core_data_.hardware_version = DEBUG_EEPROM_DATA.hardware_version;
+    #else
         EEPROM.get(EEPROMDataManager::CORE_DATA_ADDR_START, this->eeprom_core_data_.hardware_version);
+    #endif
 
         if(this->hardware_version_matches())
         {
@@ -275,7 +325,8 @@ namespace uirbcore::eeprom
 
     uint16_t EEPROMDataManager::get_uirb_board_serial_number() const
     {
-        return this->eeprom_core_data_.uirb_serial_number.number > EEPROMDataManager::UIRB_SERIAL_NUMBER_MAX
+        return this->eeprom_core_data_.uirb_serial_number.reserved_bit_1 == 1 || 
+               this->eeprom_core_data_.uirb_serial_number.number > EEPROMDataManager::UIRB_SERIAL_NUMBER_MAX
             ? EEPROMDataManager::INVALID_UIRB_SERIAL_NUMBER
             : this->eeprom_core_data_.uirb_serial_number.number;
     }
@@ -311,7 +362,11 @@ namespace uirbcore::eeprom
 
     void EEPROMDataManager::read_from_eeprom(EEPROMData& data)
     {
+    #if defined(UIRB_EEPROM_BYPASS_DEBUG)
+        data = EEPROM_DATA;
+    #else
         EEPROM.get(EEPROMDataManager::CORE_DATA_ADDR_START, data);
+    #endif
     }
 
     EEPROMData EEPROMDataManager::read_from_eeprom()
@@ -323,7 +378,11 @@ namespace uirbcore::eeprom
 
     bool EEPROMDataManager::store_to_eeprom(const EEPROMData& data)
     {
+    #if defined(UIRB_EEPROM_BYPASS_DEBUG)
+        EEPROM_DATA = data;
+    #else
         EEPROM.put(EEPROMDataManager::CORE_DATA_ADDR_START, data);
+    #endif
         return EEPROMDataManager::read_from_eeprom() == data;
     }
 }

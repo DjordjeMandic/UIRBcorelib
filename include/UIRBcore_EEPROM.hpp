@@ -6,7 +6,15 @@
  * required to store, retrieve, and manipulate configuration data in the EEPROM memory
  * of the %UIRB system. It includes compact and efficient representations of hardware and 
  * software configurations, manufacturing information, runtime statistics, and more.
- *
+ * 
+ * @details
+ * - The @ref UIRB_EEPROM_BYPASS_DEBUG macro allows all EEPROM operations to be redirected to RAM for debugging purposes, 
+ *   ensuring data persistence is emulated without requiring physical EEPROM.
+ * - The @ref UIRB_EEPROM_RPROG_DEBUG macro enables debugging of the charger programming resistor value (`Rprog`) by 
+ *   setting it to a specific value during runtime. This is especially useful in simulations or for testing different configurations.
+ * 
+ * @note Both macros are intended for debugging and testing scenarios. Refer to their documentation for detailed usage guidelines.
+ * 
  * @note This file is part of the %UIRB firmware library and is tailored for the %UIRB system.
  *       Adjustments may be required for use in other applications.
  * 
@@ -44,6 +52,7 @@
 #define UIRBcore_EEPROM_hpp
 
 #include <Arduino.h>
+#include <UIRBcore_Defs.h>
 
 #if defined(UIRB_EEPROM_DATA_ADDR_START)
     #error "UIRB_EEPROM_DATA_ADDR_START is fixed to 0x00"
@@ -149,19 +158,24 @@ namespace uirbcore
          * and version control in the firmware.
          * 
          * @details
+         * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, or during documentation generation 
+         *   (e.g., with Doxygen), it defaults to `{ .minor = 0, .major = 0 }`. This ensures compatibility 
+         *   in debugging scenarios or when the version macro is undefined.
          * - When @ref UIRB_BOARD_V02 is defined, this constant is set to `{ .minor = 2, .major = 0 }`, 
-         *   indicating the 0.2 hardware version.
-         * - For documentation purposes or when no version macro is defined (e.g., during Doxygen parsing), 
-         *   it defaults to `{ .minor = 0, .major = 0 }`.
+         *   representing hardware version 0.2.
+         * - If no version macro is explicitly defined, it also defaults to `{ .minor = 0, .major = 0 }`.
          * 
-         * @note This constant is defined as `static constexpr` to ensure it is evaluated at compile time, 
-         *       minimizing runtime overhead.
+         * @note
+         * - This constant is defined as `static constexpr` to ensure it is evaluated at compile time, 
+         *   minimizing runtime overhead.
+         * - When @ref UIRB_EEPROM_BYPASS_DEBUG is enabled, this default version is used for emulation 
+         *   and testing purposes.
          * 
          * @see @ref HardwareVersion for the structure used to represent the hardware version.
          * @see @ref EEPROMDataManager::get_hardware_version() for retrieving the hardware version stored in EEPROM.
          */
         static constexpr HardwareVersion UIRB_HW_VER =
-        #if defined(__DOXYGEN__)
+        #if defined(__DOXYGEN__) || defined(UIRB_EEPROM_BYPASS_DEBUG)
             { { .minor = 0, .major = 0 } };
         #elif defined(UIRB_BOARD_V02)
             { { .minor = 2, .major = 0 } };
@@ -242,29 +256,53 @@ namespace uirbcore
         /**
          * @brief Represents the serial number of the %UIRB system.
          * 
-         * The @ref SerialNumber union provides a compact representation of the %UIRB's serial number, with support 
-         * for additional reserved bits for internal use. It ensures the serial number occupies minimal memory while 
-         * maintaining extensibility.
+         * The @ref SerialNumber union provides a compact representation of the %UIRB's serial number, 
+         * with additional reserved bits for internal use. It ensures efficient storage and access while 
+         * allowing extensibility for future use cases.
          * 
          * @details
          * - The `struct` inside the union defines the following fields:
          *   - @ref number : The serial number of the %UIRB, stored in the lower 14 bits. This value is constrained 
          *     to the range `[0 - ` @ref EEPROMDataManager::UIRB_SERIAL_NUMBER_MAX `]`.
-         *   - @ref reserved : Upper 2 bits reserved for internal use, ensuring potential future extensions or internal 
-         *     flags do not interfere with the serial number representation.
-         * - The @ref serial_number_u16 field combines the @ref number and @ref reserved fields into a single 
-         *   `uint16_t` value for compact storage and efficient access.
+         *   - @ref reserved : Upper 2 bits reserved for internal use, providing flexibility for future extensions 
+         *     or internal flags without altering the serial number representation.
+         *   - Reserved bits are broken down into:
+         *     - @ref reserved_bit_0 : A general-purpose reserved bit for potential future functionality.
+         *     - @ref reserved_bit_1 : A debug flag that indicates an unknown or invalid serial number. When this bit 
+         *       is set, the @ref number field should be treated as invalid and the serial number should be interpreted 
+         *       as @ref EEPROMDataManager::INVALID_UIRB_SERIAL_NUMBER.
+         * - The @ref serial_number_u16 field combines @ref number and @ref reserved into a single `uint16_t` value 
+         *   for compact storage and efficient access.
          * 
-         * @note This union is packed and aligned for optimal memory usage.
+         * @note
+         * - This union is packed and aligned to ensure minimal memory usage and consistent access across architectures.
+         * - Always validate the serial number using @ref reserved_bit_1 to ensure it is valid before using it.
+         * 
+         * @warning
+         * - Misinterpreting the reserved bits may result in undefined behavior. Ensure proper handling based on their 
+         *   documented roles.
          * 
          * @see @ref EEPROMDataManager::get_uirb_board_serial_number() to retrieve the serial number.
+         * @see @ref EEPROMDataManager::INVALID_UIRB_SERIAL_NUMBER for the constant indicating an invalid serial number.
          */
         union SerialNumber
         {
             struct
             {
                 uint16_t number : 14; /**< @brief Serial number of %UIRB `[0 - ` @ref EEPROMDataManager::UIRB_SERIAL_NUMBER_MAX `]`. Part of @ref SerialNumber. */
-                uint8_t reserved : 2; /**< @brief Upper 2 bits reserved for internal use. Part of @ref SerialNumber. */
+                union
+                {
+                    struct
+                    {
+                        uint8_t reserved_bit_0 : 1; /**< @brief First reserved bit. Part of @ref SerialNumber. */
+                        uint8_t reserved_bit_1 : 1; /**< @brief Debug flag indicating an unknown serial number. 
+                                                     *  When this bit is set, the number field is invalid 
+                                                     *  and should be treated as unknown, regardless of its value.
+                                                     *  Part of @ref SerialNumber.
+                                                     */
+                    };
+                    uint8_t reserved : 2; /**< @brief Upper 2 bits reserved for internal use. Part of @ref SerialNumber. */
+                };
             };
             uint16_t serial_number_u16; /**< @brief Combined serial @ref number and @ref reserved bits as a single `uint16_t`. */
         } __attribute__((packed, aligned(1)));
@@ -356,6 +394,28 @@ namespace uirbcore
          */
         bool operator==(const EEPROMData& lhs, const EEPROMData& rhs);
 
+        /**
+         * @brief Compares two @ref EEPROMData structures for inequality.
+         * 
+         * This operator checks if any field in the left-hand side (LHS) and 
+         * right-hand side (RHS) @ref EEPROMData structs differs. It returns 
+         * `true` if at least one field does not match, and `false` if all 
+         * fields are identical.
+         * 
+         * @param[in] lhs The left-hand side @ref EEPROMData struct.
+         * @param[in] rhs The right-hand side @ref EEPROMData struct.
+         * @return bool Returns `true` if any field differs, otherwise `false`.
+         * @retval true At least one field in the LHS and RHS @ref EEPROMData structs differs.
+         * @retval false All fields in the LHS and RHS @ref EEPROMData structs are identical.
+         * 
+         * @details
+         * - This operator is implemented as the logical negation of the equality operator (`==`).
+         * - The equality operator performs the actual field comparisons, and this operator simply 
+         *   negates the result.
+         * 
+         * @see @ref operator== for the equality comparison logic.
+         * @see @ref UIRB_USE_MEMCMP_FOR_STRUCT_COMPARISON for enabling direct memory comparison.
+         */
         bool operator!=(const EEPROMData& lhs, const EEPROMData& rhs);
 
         /**
@@ -397,14 +457,36 @@ namespace uirbcore
         {
             public:
                 /**
-                 * @brief Constructs a new @ref EEPROMDataManager object and initializes it with data stored in EEPROM.
+                 * @brief Constructs a new @ref EEPROMDataManager object and initializes it with data stored in EEPROM or RAM (in debug mode).
                  * 
-                 * This constructor reads the @ref HardwareVersion from the EEPROM memory and compares it 
-                 * with the predefined constant @ref UIRB_HW_VER. If the versions match, the full @ref EEPROMData 
-                 * structure is loaded from EEPROM into the internal RAM representation.
+                 * This constructor initializes the @ref EEPROMDataManager object by reading the @ref HardwareVersion from 
+                 * either EEPROM or RAM, depending on whether @ref UIRB_EEPROM_BYPASS_DEBUG is defined. It then verifies that 
+                 * the retrieved hardware version matches the predefined constant @ref UIRB_HW_VER. If the versions match, the 
+                 * full @ref EEPROMData structure is loaded into the internal RAM representation for further operations.
                  * 
-                 * @note Use this constructor when you want to initialize the @ref EEPROMDataManager object 
-                 *       with data directly from EEPROM, ensuring the correct hardware version is used.
+                 * @details
+                 * - In normal operation, the @ref HardwareVersion is read from EEPROM starting at the address defined by 
+                 *   @ref CORE_DATA_ADDR_START.
+                 * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, the @ref HardwareVersion is initialized with the default 
+                 *   value defined in @ref DEBUG_EEPROM_DATA.
+                 * - If the hardware versions match, the constructor automatically loads the full @ref EEPROMData structure 
+                 *   into RAM by calling @ref load_from_eeprom().
+                 * 
+                 * @note
+                 * - Use this constructor to ensure that the @ref EEPROMDataManager object is initialized with data directly 
+                 *   from EEPROM, while validating that the stored hardware version matches the expected version.
+                 * - In debug mode, the data is retrieved from RAM and is not persistent between reboots or power cycles.
+                 * 
+                 * @warning
+                 * - If the hardware versions do not match, the full @ref EEPROMData structure will not be loaded, and the 
+                 *   object will remain partially initialized. Ensure proper handling of this scenario in your application.
+                 * - When using debug mode (@ref UIRB_EEPROM_BYPASS_DEBUG), ensure that the default values in 
+                 *   @ref DEBUG_EEPROM_DATA are appropriate for your use case.
+                 * 
+                 * @see @ref hardware_version_matches() for hardware version validation.
+                 * @see @ref load_from_eeprom() for loading the full @ref EEPROMData structure.
+                 * @see @ref CORE_DATA_ADDR_START for the starting EEPROM address.
+                 * @see @ref DEBUG_EEPROM_DATA for default debug mode values.
                  */
                 EEPROMDataManager();
 
@@ -750,14 +832,28 @@ namespace uirbcore
                  * @brief Retrieves the %UIRB board serial number stored in RAM.
                  * 
                  * This method returns the serial number of the %UIRB board stored in the @ref eeprom_core_data_ member.
-                 * The serial number must be within the valid range `[0 - ` @ref UIRB_SERIAL_NUMBER_MAX `]`. If the serial number exceeds 
-                 * the maximum allowable value (@ref UIRB_SERIAL_NUMBER_MAX), an invalid serial number constant 
-                 * (@ref INVALID_UIRB_SERIAL_NUMBER) is returned.
+                 * The serial number is validated to ensure it falls within the valid range `[0 - ` @ref UIRB_SERIAL_NUMBER_MAX `]`. 
+                 * If the serial number is invalid (e.g., reserved debug bit is set or the value exceeds 
+                 * @ref UIRB_SERIAL_NUMBER_MAX), the method returns the constant @ref INVALID_UIRB_SERIAL_NUMBER.
                  * 
                  * @return uint16_t The %UIRB board serial number.
-                 * @retval #INVALID_UIRB_SERIAL_NUMBER If the stored serial number exceeds the maximum valid range.
+                 * @retval #INVALID_UIRB_SERIAL_NUMBER If the serial number is invalid or out of range.
                  * 
-                 * @note The serial number is validated against the range `[0 - ` @ref UIRB_SERIAL_NUMBER_MAX `]` to ensure correctness.
+                 * @details
+                 * - The method checks the @ref reserved_bit_1 field of the serial number. If this bit is set, the serial number 
+                 *   is treated as invalid and @ref INVALID_UIRB_SERIAL_NUMBER is returned.
+                 * - The method also verifies that the serial number is within the valid range `[0 - ` @ref UIRB_SERIAL_NUMBER_MAX `]`.
+                 * - If both conditions are satisfied, the method returns the valid serial number stored in 
+                 *   @ref eeprom_core_data_.
+                 * 
+                 * @note This method ensures robustness by handling scenarios where the serial number may be corrupted 
+                 *       or marked invalid during debugging.
+                 * 
+                 * @warning If the serial number is invalid, it is up to the caller to handle the returned 
+                 *          @ref INVALID_UIRB_SERIAL_NUMBER appropriately.
+                 * 
+                 * @see @ref UIRB_SERIAL_NUMBER_MAX for the maximum allowable serial number value.
+                 * @see @ref INVALID_UIRB_SERIAL_NUMBER for the constant returned in case of invalid serial numbers.
                  */
                 uint16_t get_uirb_board_serial_number() const;
 
@@ -883,35 +979,71 @@ namespace uirbcore
                 void load_from_eeprom();
 
                 /**
-                 * @brief Reads the @ref EEPROMData struct from EEPROM into a provided reference.
+                 * @brief Reads the @ref EEPROMData structure from EEPROM or RAM (in debug mode) into the provided reference.
                  * 
-                 * This static method reads the @ref EEPROMData struct directly from EEPROM, starting 
-                 * at the address specified by @ref CORE_DATA_ADDR_START, and copies it into 
-                 * the provided reference.
+                 * This static method retrieves the @ref EEPROMData structure either from EEPROM or from the RAM-based 
+                 * @ref EEPROM_DATA (if @ref UIRB_EEPROM_BYPASS_DEBUG is defined) and copies it into the specified reference.
+                 * In normal operation, the data is read from EEPROM starting at the address specified by @ref CORE_DATA_ADDR_START. 
+                 * In debug mode, the data is directly retrieved from RAM.
                  * 
-                 * @param[out] data Reference to the @ref EEPROMData struct where the retrieved data 
-                 *                 will be stored.
+                 * @param[out] data Reference to the @ref EEPROMData structure where the retrieved data will be stored.
                  * 
-                 * @note This method does not modify any internal state of the @ref EEPROMDataManager 
-                 *       class. It is a low-level utility for directly accessing EEPROM data.
+                 * @details
+                 * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, data is read from RAM via the global @ref EEPROM_DATA 
+                 *   instead of EEPROM.
+                 * - In normal operation (EEPROM storage), data is retrieved from the EEPROM starting at the 
+                 *   address defined by @ref CORE_DATA_ADDR_START.
+                 * - This method does not modify any internal state of the @ref EEPROMDataManager class. It is a low-level 
+                 *   utility function for retrieving stored data.
+                 * 
+                 * @note
+                 * - In debug mode, data stored in RAM is volatile and will not persist between reboots or power cycles.
+                 * - Ensure the structure and alignment of the @ref EEPROMData match the memory layout stored in EEPROM 
+                 *   to avoid data corruption or invalid results.
+                 * 
+                 * @warning
+                 * - Improper use of this function with mismatched structures may lead to undefined behavior or data corruption.
+                 * - When using debug mode (@ref UIRB_EEPROM_BYPASS_DEBUG), ensure that the system is configured correctly 
+                 *   and that GPIO pins are adequately protected.
                  * 
                  * @see @ref read_from_eeprom() for an alternative method returning a new instance.
+                 * @see @ref CORE_DATA_ADDR_START for the starting EEPROM address.
+                 * @see @ref UIRB_EEPROM_BYPASS_DEBUG for debug mode behavior.
                  */
                 static void read_from_eeprom(EEPROMData& data);
 
                 /**
-                 * @brief Reads the @ref EEPROMData struct from EEPROM and returns a new instance.
+                 * @brief Reads the @ref EEPROMData structure from EEPROM or RAM (in debug mode) and returns a new instance.
                  * 
-                 * This static method reads the @ref EEPROMData struct directly from EEPROM, starting 
-                 * at the address specified by @ref CORE_DATA_ADDR_START, and returns it as a new instance.
+                 * This static method retrieves the @ref EEPROMData structure from either EEPROM or RAM, depending on whether 
+                 * @ref UIRB_EEPROM_BYPASS_DEBUG is defined, and returns it as a new instance. In normal operation, the data is 
+                 * read from EEPROM starting at the address specified by @ref CORE_DATA_ADDR_START. In debug mode, the data is 
+                 * retrieved directly from the RAM-based @ref EEPROM_DATA.
                  * 
-                 * @return An instance of the @ref EEPROMData struct containing the data read from EEPROM.
+                 * @return An instance of the @ref EEPROMData structure containing the retrieved data.
                  * 
-                 * @note This method is a convenience wrapper around @ref read_from_eeprom(EEPROMData&), 
-                 *       returning a new instance of @ref EEPROMData for use in scenarios where direct 
-                 *       assignment is preferred.
+                 * @details
+                 * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, the data is read from RAM using the global 
+                 *   @ref EEPROM_DATA instead of EEPROM.
+                 * - In normal operation (EEPROM storage), the data is read from the EEPROM starting at 
+                 *   @ref CORE_DATA_ADDR_START.
+                 * - This method provides a convenience wrapper for scenarios where a direct return of a new 
+                 *   @ref EEPROMData instance is preferred over passing a reference.
                  * 
-                 * @see @ref read_from_eeprom(EEPROMData&) for direct access using a reference.
+                 * @note
+                 * - In debug mode, data stored in RAM is volatile and will not persist between reboots or power cycles.
+                 * - Ensure the structure and alignment of @ref EEPROMData match the memory layout stored in EEPROM 
+                 *   to avoid data corruption or invalid results.
+                 * - This method internally calls @ref read_from_eeprom(EEPROMData&) to retrieve the data.
+                 * 
+                 * @warning
+                 * - Improper use of this method with mismatched structures may lead to undefined behavior or data corruption.
+                 * - When using debug mode (@ref UIRB_EEPROM_BYPASS_DEBUG), ensure that the system is configured correctly 
+                 *   and that GPIO pins are adequately protected.
+                 * 
+                 * @see @ref read_from_eeprom(EEPROMData&) for a direct version using a reference.
+                 * @see @ref CORE_DATA_ADDR_START for the starting EEPROM address.
+                 * @see @ref UIRB_EEPROM_BYPASS_DEBUG for debug mode behavior.
                  */
                 static EEPROMData read_from_eeprom();
 
@@ -997,25 +1129,38 @@ namespace uirbcore
                 bool save_to_eeprom() const;
 
                 /**
-                 * @brief Writes a specified @ref EEPROMData structure to EEPROM.
+                 * @brief Writes a specified @ref EEPROMData structure to EEPROM or RAM (in debug mode).
                  * 
-                 * This static method writes the given @ref EEPROMData structure to the EEPROM, 
-                 * starting at the address defined by @ref CORE_DATA_ADDR_START. It verifies the integrity 
-                 * of the written data by comparing it to the in-memory representation after the write operation.
+                 * This static method writes the given @ref EEPROMData structure to either EEPROM or RAM, depending 
+                 * on whether @ref UIRB_EEPROM_BYPASS_DEBUG is defined. In normal operation, the data is written to EEPROM 
+                 * starting at the address defined by @ref CORE_DATA_ADDR_START. In debug mode, the data is stored in the 
+                 * RAM-based @ref EEPROM_DATA and does not persist after a reboot or power cycle.
                  * 
-                 * @param[in] data The @ref EEPROMData structure to store in EEPROM.
-                 * @return bool Indicates whether the specified data was successfully stored in EEPROM.
-                 * @retval true The written data in EEPROM matches the provided @ref EEPROMData structure.
-                 * @retval false The data in EEPROM does not match the provided structure, or the operation failed.
+                 * @param[in] data The @ref EEPROMData structure to be stored.
+                 * @return bool Indicates whether the specified data was successfully stored and verified.
+                 * @retval true The written data matches the provided @ref EEPROMData structure.
+                 * @retval false The stored data does not match the provided structure, or the operation failed.
                  * 
                  * @details
-                 * - This function does not modify any member variables of the @ref EEPROMDataManager class.
+                 * - When @ref UIRB_EEPROM_BYPASS_DEBUG is defined, the data is written to RAM via the global @ref EEPROM_DATA 
+                 *   instead of EEPROM. This is useful for debugging scenarios with simulators like `simavr`.
+                 * - In normal operation, the data is written to EEPROM starting at @ref CORE_DATA_ADDR_START, and its 
+                 *   integrity is verified by reading the data back and comparing it to the in-memory representation.
+                 * - This method does not modify any member variables of the @ref EEPROMDataManager class.
                  * 
-                 * @warning Ensure the provided @ref EEPROMData structure is valid and aligned with the 
-                 *          memory layout expected in EEPROM to avoid data corruption.
+                 * @note
+                 * - In debug mode, data stored in RAM is volatile and will not persist between reboots or power cycles.
+                 * - Ensure that the structure and alignment of the @ref EEPROMData match the expected memory layout in EEPROM 
+                 *   to prevent data corruption or invalid results.
+                 * 
+                 * @warning
+                 * - Improper use of this method with mismatched or invalid @ref EEPROMData structures may lead to undefined 
+                 *   behavior or data corruption.
+                 * - When using debug mode (@ref UIRB_EEPROM_BYPASS_DEBUG), ensure proper configuration and GPIO protection.
                  * 
                  * @see @ref CORE_DATA_ADDR_START for the starting EEPROM address.
-                 * @see @ref EEPROMDataManager::save_to_eeprom() for saving the internal structure.
+                 * @see @ref read_from_eeprom() for verifying stored data.
+                 * @see @ref UIRB_EEPROM_BYPASS_DEBUG for debugging behavior and limitations.
                  */
                 static bool store_to_eeprom(const EEPROMData& data);
 
@@ -1095,6 +1240,52 @@ namespace uirbcore
                  */
                 friend class uirbcore::UIRB;
         };
+
+    #if defined(UIRB_EEPROM_BYPASS_DEBUG) || defined(__DOXYGEN__)
+        /**
+         * @brief Default debug EEPROM data used when @ref UIRB_EEPROM_BYPASS_DEBUG is enabled.
+         * 
+         * This static constant defines the default values for the @ref EEPROMData structure when the 
+         * @ref UIRB_EEPROM_BYPASS_DEBUG macro is defined. Data operations are redirected to RAM 
+         * instead of EEPROM, and this structure serves as the initial state of the emulated EEPROM data.
+         * 
+         * @details
+         * - Provides predefined values for all fields in the @ref EEPROMData structure, ensuring that 
+         *   all necessary fields are initialized correctly for debugging scenarios.
+         * - If @ref UIRB_EEPROM_RPROG_DEBUG is defined, the `charger_prog_resistor_ohms` field is set 
+         *   to its value. Otherwise, it is initialized to @ref EEPROMDataManager::INVALID_CHARGER_PROG_RESISTANCE.
+         * - The `factory_cp2104_usb_serial_number` field is set to "EEDBG=1", indicating that the 
+         *   EEPROM bypass mode is active.
+         * 
+         * @note
+         * - This structure is used only in debug mode and does not persist between reboots or power cycles.
+         * - Ensure appropriate values for debugging scenarios to prevent undefined behavior.
+         * 
+         * @warning
+         * - Do not use this structure in production environments.
+         * - GPIO pins may behave differently when debugging mode is enabled; ensure hardware safety.
+         * 
+         * @see @ref UIRB_EEPROM_BYPASS_DEBUG for more details about EEPROM bypass mode.
+         * @see @ref UIRB_EEPROM_RPROG_DEBUG for debugging the charger programming resistor value.
+         * @see @ref UIRB_HW_VER for the default hardware version.
+         */
+        static constexpr EEPROMData DEBUG_EEPROM_DATA = 
+        {
+            .hardware_version = uirbcore::eeprom::UIRB_HW_VER, /**< @brief Default hardware version set to 0.0. */
+            .bandgap_1v1_reference_offset = 0, /**< @brief No offset for 1.1V bandgap reference voltage. */
+            .stat_led_brightness = 0, /**< @brief LED brightness set to 0 (safe default for debugging). */
+        #if defined(UIRB_EEPROM_RPROG_DEBUG)
+            .charger_prog_resistor_ohms = UIRB_EEPROM_RPROG_DEBUG, /**< @brief Debug value for Rprog resistor set via @ref UIRB_EEPROM_RPROG_DEBUG. */
+        #else
+            .charger_prog_resistor_ohms = uirbcore::eeprom::EEPROMDataManager::INVALID_CHARGER_PROG_RESISTANCE, /**< @brief Invalid Rprog resistance. */
+        #endif
+            .software_config = { .config_byte = 0 }, /**< @brief All software configuration options disabled. */
+            .hardware_manufacture_date = { .month_year_byte = 0xFFU }, /**< @brief Invalid manufacture date (year 2035, month 15). */
+            .boot_count = UINT32_MAX, /**< @brief Maximum boot count to indicate invalid data. */
+            .uirb_serial_number = { .serial_number_u16 = uirbcore::eeprom::EEPROMDataManager::INVALID_UIRB_SERIAL_NUMBER }, /**< @brief Invalid serial number. */
+            .factory_cp2104_usb_serial_number = {"EEDBG=1"} /**< @brief Indicates EEPROM bypass mode is active. */
+        };
+    #endif
     }  // namesapce eeprom
 }  // namespace uirbcore
 #endif  // UIRBcore_EEPROM_hpp

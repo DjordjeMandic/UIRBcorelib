@@ -71,7 +71,7 @@
      * 
      * It is primarily used for logging and display purposes.
      */
-    #define UIRB_CORE_LIB_VER_STR "v1.0.1"
+    #define UIRB_CORE_LIB_VER_STR "v1.1.0"
 
     
     #if defined(UIRB_CORE_LIB_MAJOR)
@@ -100,7 +100,7 @@
      * backward-compatible with previous versions. Incrementing this number signals a
      * minor release.
      */
-    #define UIRB_CORE_LIB_MINOR (0)
+    #define UIRB_CORE_LIB_MINOR (1)
     
     #if defined(UIRB_CORE_LIB_PATCH)
         #undef UIRB_CORE_LIB_PATCH
@@ -113,7 +113,7 @@
      * The patch version number indicates backward-compatible bug fixes or minor updates
      * that do not introduce new features. Incrementing this number signals a patch release.
      */
-    #define UIRB_CORE_LIB_PATCH (1)
+    #define UIRB_CORE_LIB_PATCH (0)
 
 #else  // defined(UIRB_CORE_LIB)
 
