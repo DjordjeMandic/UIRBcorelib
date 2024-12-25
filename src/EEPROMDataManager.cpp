@@ -363,6 +363,7 @@ namespace uirbcore::eeprom
     void EEPROMDataManager::read_from_eeprom(EEPROMData& data)
     {
     #if defined(UIRB_EEPROM_BYPASS_DEBUG)
+        EEPROM_DATA.uirb_serial_number.reserved_bit_1 = 1U;
         data = EEPROM_DATA;
     #else
         EEPROM.get(EEPROMDataManager::CORE_DATA_ADDR_START, data);
@@ -379,6 +380,7 @@ namespace uirbcore::eeprom
     bool EEPROMDataManager::store_to_eeprom(const EEPROMData& data)
     {
     #if defined(UIRB_EEPROM_BYPASS_DEBUG)
+        data.uirb_serial_number.reserved_bit_1 = 1U;
         EEPROM_DATA = data;
     #else
         EEPROM.put(EEPROMDataManager::CORE_DATA_ADDR_START, data);
