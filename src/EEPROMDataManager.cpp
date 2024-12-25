@@ -380,8 +380,8 @@ namespace uirbcore::eeprom
     bool EEPROMDataManager::store_to_eeprom(const EEPROMData& data)
     {
     #if defined(UIRB_EEPROM_BYPASS_DEBUG)
-        data.uirb_serial_number.reserved_bit_1 = 1U;
         EEPROM_DATA = data;
+        EEPROM_DATA.uirb_serial_number.reserved_bit_1 = 1U;
     #else
         EEPROM.put(EEPROMDataManager::CORE_DATA_ADDR_START, data);
     #endif
