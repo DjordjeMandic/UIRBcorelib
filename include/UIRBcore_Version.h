@@ -85,7 +85,7 @@
      * 
      * @see https://git-scm.com/docs/git-describe for details about the `git describe` command.
      */
-    #define UIRB_CORE_LIB_VER_STR "v1.1.1"
+    #define UIRB_CORE_LIB_VER_STR "v1.1.1-1-g5d7e183-dirty"
 
     #if defined(UIRB_CORE_LIB_MAJOR)
         #undef UIRB_CORE_LIB_MAJOR
