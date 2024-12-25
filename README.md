@@ -77,7 +77,7 @@ void setup()
     if (!uirb.begin())
     {
         Serial.println(F("UIRBcore Initialization Failed!"));
-        // Ensure uirb.begin() succeeds before proceeding to avoid hardware damage.
+        // Ensure uirb.begin() returns `uirbcore::CoreResult::SUCCESS` before proceeding to avoid hardware damage.
         while (1);
     }
 
