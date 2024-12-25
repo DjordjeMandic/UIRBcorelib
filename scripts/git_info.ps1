@@ -33,7 +33,6 @@ param (
     [string]$File
 )
 
-# Perform the requested operation
 switch ($Operation) {
     "project_number" {
         <#
@@ -47,9 +46,10 @@ switch ($Operation) {
         .OUTPUTS
             The project version string or commit hash.
         #>
-        $projVer = git describe --tags --dirty 2>$null
+        $projVer = git describe --tags --dirty --always 2>$null
         if (-not $projVer) {
-            $projVer = git rev-parse --short HEAD
+            Write-Output "Unable to retrieve project version. Ensure this is a Git repository."
+            exit 1
         }
         Write-Output $projVer
     }
@@ -72,6 +72,10 @@ switch ($Operation) {
             exit 1
         }
         $commitHash = git log -n 1 --pretty=format:"%h (%ad)" -- $File
+        if (-not $commitHash) {
+            Write-Output "Unable to retrieve commit hash for the specified file."
+            exit 1
+        }
         Write-Output $commitHash
     }
     default {

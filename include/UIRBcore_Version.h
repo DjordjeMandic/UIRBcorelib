@@ -61,19 +61,32 @@
      * @def UIRB_CORE_LIB_VER_STR
      * @brief Full version string of the UIRBcore library.
      * 
-     * This macro defines a string representing the full version of the UIRBcore library.
-     * The version format is:
-     * - `MAJOR.MINOR.PATCH` (e.g., "1.0.0")
-     * - Or optionally prefixed with `v`: `vMAJOR.MINOR.PATCH` (e.g., "v1.0.0")
-     * - For additional commits, the format includes commit details: 
-     *   `MAJOR.MINOR.PATCH-COMMITS-g<COMMIT_HASH>` or `vMAJOR.MINOR.PATCH-COMMITS-g<COMMIT_HASH>`
-     *   (e.g., "1.0.0-2-gabc1234" or "v1.0.0-2-gabc1234").
+     * This macro defines a string representing the full version of the UIRBcore library as retrieved by 
+     * the `git describe --tags --dirty --always` command. The version format can take various forms:
      * 
-     * It is primarily used for logging and display purposes.
+     * **Version Formats:**
+     * - **Tagged Commit:**
+     *   - `MAJOR.MINOR.PATCH` (e.g., "1.0.0")
+     *   - Optionally prefixed with `v`: `vMAJOR.MINOR.PATCH` (e.g., "v1.0.0").
+     * - **Additional Commits Beyond Tag:**
+     *   - Includes commit count and hash: 
+     *     - `MAJOR.MINOR.PATCH-COMMITS-g<COMMIT_HASH>` (e.g., "1.0.0-2-gabc1234")
+     *     - `vMAJOR.MINOR.PATCH-COMMITS-g<COMMIT_HASH>` (e.g., "v1.0.0-2-gabc1234").
+     * - **Uncommitted Changes:**
+     *   - Appends `-dirty` if the working directory has uncommitted changes (e.g., "1.0.0-dirty").
+     * 
+     * **Use Case:**
+     * - The macro is primarily used for logging, display, and debugging purposes, ensuring visibility 
+     *   of the current version state, including details about uncommitted changes or additional commits.
+     * 
+     * **Note:**
+     * - Ensure that the repository contains valid Git tags for meaningful version strings.
+     * - If no tags exist, the output will fall back to the latest commit hash.
+     * 
+     * @see https://git-scm.com/docs/git-describe for details about the `git describe` command.
      */
     #define UIRB_CORE_LIB_VER_STR "v1.1.0"
 
-    
     #if defined(UIRB_CORE_LIB_MAJOR)
         #undef UIRB_CORE_LIB_MAJOR
     #endif  // defined(UIRB_CORE_LIB_MAJOR)

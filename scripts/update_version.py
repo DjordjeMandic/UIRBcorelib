@@ -2,21 +2,20 @@ import os
 import re
 import subprocess
 
+def log_message(message):
+    """
+    Logs a message with the [UIRBcorelib] prefix.
+    """
+    print(f"[UIRBcorelib]: {message}")
+
 def get_git_version():
     """
-    Retrieves the latest Git tag or falls back to the latest commit hash if no tags exist.
+    Retrieves the latest Git tag or commit hash, appending 'dirty' if there are uncommitted changes.
     """
     try:
-        # Try to get the latest tag with commit hash if dirty
-        version = subprocess.check_output(["git", "describe", "--tags", "--dirty"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
-        return version
+        return subprocess.check_output(["git", "describe", "--tags", "--dirty", "--always"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
     except subprocess.CalledProcessError:
-        # Fallback to the latest commit hash
-        try:
-            commit_hash = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
-            return commit_hash
-        except subprocess.CalledProcessError:
-            raise Exception("Unable to retrieve Git version or commit hash. Ensure this is a Git repository.")
+        raise Exception("Unable to retrieve Git version. Ensure this is a Git repository.")
 
 def get_repo_root():
     """
@@ -41,21 +40,22 @@ def update_header_content(content, git_version):
     """
     Updates the header file content with the new version information.
     """
+    
+    # Update macros in the content
+    content = re.sub(r'#define\s+UIRB_CORE_LIB_VER_STR\s+".*"', f'#define UIRB_CORE_LIB_VER_STR "{git_version}"', content)
+    
     # Default version components
     major, minor, patch = "0", "0", "0"
 
     # Extract major, minor, patch, and optional suffix from Git version
-    match = re.match(r"v?(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(?P<suffix>.*)", git_version)
+    match = re.match(r"^(v(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+))(?P<suffix>-\d+-g[0-9a-f]+)?(?P<dirty>-dirty)?$", git_version)
     if match:
         major = match.group("major")
         minor = match.group("minor")
         patch = match.group("patch")
-
-    # Update macros in the content
-    content = re.sub(r'#define\s+UIRB_CORE_LIB_VER_STR\s+".*"', f'#define UIRB_CORE_LIB_VER_STR "{git_version}"', content)
-    content = re.sub(r'#define\s+UIRB_CORE_LIB_MAJOR\s+\(\d+\)', f'#define UIRB_CORE_LIB_MAJOR ({major})', content)
-    content = re.sub(r'#define\s+UIRB_CORE_LIB_MINOR\s+\(\d+\)', f'#define UIRB_CORE_LIB_MINOR ({minor})', content)
-    content = re.sub(r'#define\s+UIRB_CORE_LIB_PATCH\s+\(\d+\)', f'#define UIRB_CORE_LIB_PATCH ({patch})', content)
+        content = re.sub(r'#define\s+UIRB_CORE_LIB_MAJOR\s+\(\d+\)', f'#define UIRB_CORE_LIB_MAJOR ({major})', content)
+        content = re.sub(r'#define\s+UIRB_CORE_LIB_MINOR\s+\(\d+\)', f'#define UIRB_CORE_LIB_MINOR ({minor})', content)
+        content = re.sub(r'#define\s+UIRB_CORE_LIB_PATCH\s+\(\d+\)', f'#define UIRB_CORE_LIB_PATCH ({patch})', content)
 
     return content
 
@@ -76,7 +76,7 @@ def main():
 
         # Get the latest version from Git
         git_version = get_git_version()
-        print(f"Git Tag Version: {git_version}")
+        log_message(f"Git Tag Version: {git_version}")
 
         # Read the header file
         content = read_header_file(header_file_path)
@@ -86,10 +86,10 @@ def main():
 
         # Write the updated content back to the file
         write_header_file(header_file_path, updated_content)
-        print(f"Updated {header_file_path} successfully.")
+        log_message(f"Updated {header_file_path} successfully.")
 
     except Exception as e:
-        print(f"Error: {e}")
+        log_message(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
