@@ -1283,7 +1283,7 @@ namespace uirbcore
             .hardware_manufacture_date = { .month_year_byte = 0xFFU }, /**< @brief Invalid manufacture date (year 2035, month 15). */
             .boot_count = UINT32_MAX, /**< @brief Maximum boot count to indicate invalid data. */
             .uirb_serial_number = { .serial_number_u16 = uirbcore::eeprom::EEPROMDataManager::INVALID_UIRB_SERIAL_NUMBER }, /**< @brief Invalid serial number. */
-            .factory_cp2104_usb_serial_number = {"EEDBG=1"} /**< @brief Indicates EEPROM bypass mode is active. */
+            .factory_cp2104_usb_serial_number = { 'E', 'E', 'D', 'B', 'G', '=', '1' } /**< @brief Indicates EEPROM bypass mode is active. */
         };
     #endif
     }  // namesapce eeprom
