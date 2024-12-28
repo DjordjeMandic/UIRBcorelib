@@ -390,7 +390,7 @@
 
     #if defined(__DOXYGEN__)
         /** 
-         * @brief Alias for @ref PIN_PROG.
+         * @brief Alias for @ref PIN_PROG when using %UIRB V0.2 board.
          */
         #define PIN_A1 PIN_PROG
     #endif  // defined(__DOXYGEN__)
@@ -496,7 +496,7 @@
      * - For applications requiring only the demodulated signal (e.g., standard IR protocols like NEC or RC5), consider using 
      *   @ref PIN_IR_RECEIVE instead, which connects to a demodulating receiver.
      * 
-     * @see @ref PIN_IR_CAPTURE_PULLUP for the configuration flag that indicates whether the pull-up resistor should be enabled on the IR capture pin.
+     * @see @ref IR_CAPTURE_PIN_PULLUP for the configuration flag that indicates whether the pull-up resistor should be enabled on the IR capture pin.
      */
     #define PIN_IR_CAPTURE (8)
 
@@ -519,7 +519,7 @@
      * 
      * Example Code Usage:
      * @code
-     * #if PIN_IR_CAPTURE_PULLUP
+     * #if IR_CAPTURE_PIN_PULLUP
      *     pinMode(PIN_IR_CAPTURE, INPUT_PULLUP);
      * #else
      *     pinMode(PIN_IR_CAPTURE, INPUT);
@@ -534,11 +534,11 @@
      * 
      * @see @ref PIN_IR_CAPTURE for the IR capture pin configuration.
      */
-    #if !defined(PIN_IR_CAPTURE_PULLUP) || defined(__DOXYGEN__)
-        #define PIN_IR_CAPTURE_PULLUP (0)
-    #elif (PIN_IR_CAPTURE_PULLUP != 0 && PIN_IR_CAPTURE_PULLUP != 1)
-        #undef PIN_IR_CAPTURE_PULLUP
-        #define PIN_IR_CAPTURE_PULLUP (0)
+    #if !defined(IR_CAPTURE_PIN_PULLUP) || defined(__DOXYGEN__)
+        #define IR_CAPTURE_PIN_PULLUP (0)
+    #elif (IR_CAPTURE_PIN_PULLUP != 0 && IR_CAPTURE_PIN_PULLUP != 1)
+        #undef IR_CAPTURE_PIN_PULLUP
+        #define IR_CAPTURE_PIN_PULLUP (0)
     #endif
 
     /**
@@ -580,7 +580,7 @@
      * - For applications requiring raw signal capture, consider using @ref PIN_IR_CAPTURE instead, which supports non-demodulating 
      *   IR receivers.
      * 
-     * @see @ref PIN_IR_RECEIVE_PULLUP for the configuration flag that indicates whether the pull-up resistor should be enabled on the IR receive pin.
+     * @see @ref IR_RECEIVE_PIN_PULLUP for the configuration flag that indicates whether the pull-up resistor should be enabled on the IR receive pin.
      * @see @ref PIN_SPI_MISO for the SPI MISO (Master In Slave Out) pin configuration.
      */
     #if !defined(PIN_IR_RECEIVE) || defined(__DOXYGEN__)
@@ -596,8 +596,8 @@
      * 
      * @details
      * - **Possible Values:**
-     *   - `1` (enabled): Use `-DPIN_IR_RECEIVE_PULLUP=1`.
-     *   - `0` (disabled): Use `-DPIN_IR_RECEIVE_PULLUP=0`.
+     *   - `1` (enabled): Use `-DIR_RECEIVE_PIN_PULLUP=1`.
+     *   - `0` (disabled): Use `-DIR_RECEIVE_PIN_PULLUP=0`.
      *   - If not defined, it defaults to `1` (enabled).
      * 
      * - **Behavior:**
@@ -606,7 +606,7 @@
      * 
      * Example Code Usage:
      * @code
-     * #if PIN_IR_RECEIVE_PULLUP
+     * #if IR_RECEIVE_PIN_PULLUP
      *     pinMode(PIN_IR_RECEIVE, INPUT_PULLUP);
      * #else
      *     pinMode(PIN_IR_RECEIVE, INPUT);
@@ -621,11 +621,11 @@
      * 
      * @see @ref PIN_IR_RECEIVE for the IR receive pin configuration.
      */
-    #if !defined(PIN_IR_RECEIVE_PULLUP) || defined(__DOXYGEN__)
-        #define PIN_IR_RECEIVE_PULLUP (1)
-    #elif (PIN_IR_RECEIVE_PULLUP != 0 && PIN_IR_RECEIVE_PULLUP != 1)
-        #undef PIN_IR_RECEIVE_PULLUP
-        #define PIN_IR_RECEIVE_PULLUP (1)
+    #if !defined(IR_RECEIVE_PIN_PULLUP) || defined(__DOXYGEN__)
+        #define IR_RECEIVE_PIN_PULLUP (1)
+    #elif (IR_RECEIVE_PIN_PULLUP != 0 && IR_RECEIVE_PIN_PULLUP != 1)
+        #undef IR_RECEIVE_PIN_PULLUP
+        #define IR_RECEIVE_PIN_PULLUP (1)
     #endif
     /** @} */ // End of IR Transmitter and Receiver Pins
 
@@ -850,10 +850,104 @@
     #define LED_BUILTIN PIN_STAT_LED
     /** @} */ // End of LED Pins
 
-#else  // defined(UIRB_BOARD_V02) || defined(__DOXYGEN__)
+#else
 
-    #error "Unknown UIRB board version."
+    #warning "Unknown board."
 
 #endif  // defined(UIRB_BOARD_V02) || defined(__DOXYGEN__)
+
+#if !defined(PIN_SPI_SCK)
+    #error "PIN_SPI_SCK is not defined."
+#endif  // !defined(PIN_SPI_SCK)
+
+#if !defined(PIN_SPI_MISO)
+    #error "PIN_SPI_MISO is not defined."
+#endif  // !defined(PIN_SPI_MISO)
+
+#if !defined(PIN_SPI_MOSI)
+    #error "PIN_SPI_MOSI is not defined."
+#endif  // !defined(PIN_SPI_MOSI)
+
+#if !defined(LED_BUILTIN)
+    #error "LED_BUILTIN is not defined."
+#endif  // !defined(LED_BUILTIN)
+
+#if !defined(PIN_STAT_LED)
+    #warning "PIN_STAT_LED is not defined. Using default (LED_BUILTIN)"
+    #define PIN_STAT_LED LED_BUILTIN
+#endif  // !defined(PIN_STAT_LED)
+
+#if !defined(PIN_TX)
+    #warning "PIN_TX is not defined. Using default (1)"
+    #define PIN_TX (1)
+#endif  // !defined(PIN_TX)
+
+#if !defined(PIN_RX)
+    #warning "PIN_RX is not defined. Using default (0)"
+    #define PIN_RX (0)
+#endif  // !defined(PIN_RX)
+
+#if !defined(PIN_PROG)
+    #error "PIN_PROG is not defined."
+#endif  // !defined(PIN_PROG)
+
+#if !defined(PIN_IR_LED)
+    #warning "PIN_IR_LED is not defined. Using default (3)"
+    #define PIN_IR_LED (3)
+#elif (PIN_IR_LED != 3)
+    #error "PIN_IR_LED is currently only supported on digital pin 3."
+#endif  // !defined(PIN_IR_LED)
+
+#if !defined(PIN_IR_CAPTURE)
+    #error "PIN_IR_CAPTURE is not defined."
+#endif  // !defined(PIN_IR_CAPTURE)
+
+#if !defined(IR_CAPTURE_PIN_PULLUP)
+    #warning "IR_CAPTURE_PIN_PULLUP is not defined. Using default (0)"
+    #define IR_CAPTURE_PIN_PULLUP (0)
+#endif  // !defined(IR_CAPTURE_PIN_PULLUP)
+
+#if !defined(PIN_IR_RECEIVE)
+    #error "PIN_IR_RECEIVE is not defined."
+#endif  // !defined(PIN_IR_RECEIVE)
+
+#if !defined(IR_RECEIVE_PIN_PULLUP)
+    #warning "IR_RECEIVE_PIN_PULLUP is not defined. Using default (1)"
+    #define IR_RECEIVE_PIN_PULLUP (1)
+#endif  // !defined(IR_RECEIVE_PIN_PULLUP)
+
+#if !defined(PIN_USB_IO3)
+    #warning "PIN_USB_IO3 is not defined. Using default (4)"
+    #define PIN_USB_IO3 (4)
+#elif (PIN_USB_IO3 != 4)
+    #error "PIN_USB_IO3 is currently only supported on digital pin 4."
+#endif  // !defined(PIN_USB_IO3)
+
+#if !defined(PIN_BUTTON_WAKEUP)
+    #warning "PIN_BUTTON_WAKEUP is not defined. Using default (2)"
+    #define PIN_BUTTON_WAKEUP (2)
+#elif (PIN_BUTTON_WAKEUP != 2)
+    #error "PIN_BUTTON_WAKEUP is currently only supported on digital pin 2."
+#endif  // !defined(PIN_BUTTON_WAKEUP)
+
+#if !defined(PIN_PULLDOWN_RESISTOR)
+    #error "PIN_PULLDOWN_RESISTOR is not defined."
+#endif  // !defined(PIN_PULLDOWN_RESISTOR)
+
+#if !defined(PIN_BUTTON_OPTION_1)
+    #error "PIN_BUTTON_OPTION_1 is not defined."
+#endif  // !defined(PIN_BUTTON_OPTION_1)
+
+#if !defined(PIN_BUTTON_OPTION_2)
+    #error "PIN_BUTTON_OPTION_2 is not defined."
+#endif  // !defined(PIN_BUTTON_OPTION_2)
+
+#if !defined(PIN_BUTTON_OPTION_3)
+    #error "PIN_BUTTON_OPTION_3 is not defined."
+#endif  // !defined(PIN_BUTTON_OPTION_3)
+
+#if !defined(BUTTON_PIN_ACTIVE_STATE)
+    #error "BUTTON_PIN_ACTIVE_STATE is not defined."
+#endif  // !defined(BUTTON_PIN_ACTIVE_STATE)
 
 #endif  // UIRBcore_Pins_h

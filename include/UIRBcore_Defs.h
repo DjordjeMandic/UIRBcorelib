@@ -39,6 +39,7 @@
 #define UIRBcore_Defs_h
 
 #include <Arduino.h>
+#include <UIRBcore_Pins.h>
 
 /**
  * @def STR(x)

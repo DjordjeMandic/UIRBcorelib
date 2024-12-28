@@ -68,9 +68,9 @@
 
 #include <Arduino.h>
 
-#if !defined(UIRB_BOARD_V02) || !defined(ARDUINO_AVR_ATmega328P) || !defined(ARDUINO_ARCH_AVR) || !defined(__AVR_ATmega328P__) 
+#if !defined(ARDUINO_ARCH_AVR) || !defined(__AVR_ATmega328P__) 
     #error "Unsupported platform."
-#endif  // !defined(UIRB_BOARD_V02) || !defined(ARDUINO_AVR_ATmega328P) || !defined(ARDUINO_ARCH_AVR) || !defined(__AVR_ATmega328P__) 
+#endif  // !defined(ARDUINO_ARCH_AVR) || !defined(__AVR_ATmega328P__) 
 
 /**
  * @def AVR_DEBUG
