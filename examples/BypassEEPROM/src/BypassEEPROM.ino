@@ -1,5 +1,5 @@
 /**
- * @file main.cpp
+ * @file BypassEEPROM.ino
  * @brief Example showcasing EEPROM bypass and debugging features of the UIRBcore library in a simulated environment.
  * 
  * This example demonstrates the usage of the UIRBcore library for managing hardware features, such as 

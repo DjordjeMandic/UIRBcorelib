@@ -30,17 +30,17 @@
     {
       "name": "Basic",
       "base": "examples/Basic",
-      "files": ["Basic.ino", "platformio.ini"]
+      "files": ["src/Basic.ino", "platformio.ini"]
     },
     {
       "name": "Calibration",
       "base": "examples/Calibration",
-      "files": ["Calibration.ino", "platformio.ini"]
+      "files": ["src/Calibration.ino", "platformio.ini"]
     },
     {
       "name": "BypassEEPROM",
       "base": "examples/BypassEEPROM",
-      "files": ["src/main.cpp", "platformio.ini"]
+      "files": ["src/BypassEEPROM.ino", "platformio.ini"]
     }
   ],
   "license": "MIT",

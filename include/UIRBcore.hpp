@@ -54,12 +54,12 @@
  */
 
 /**
- * @example examples/Basic/Basic.ino
+ * @example examples/Basic/src/Basic.ino
  * @brief Basic example demonstrating the use of the UIRBcore library.
  */
 
 /**
- * @example examples/Calibration/Calibration.ino
+ * @example examples/Calibration/src/Calibration.ino
  * @brief Example demonstrating the calibration and usage of the 1.1V internal reference using the UIRBcore library.
  */
 
@@ -97,11 +97,11 @@
  * 
  * @note This configuration is used to enable AVR debugging functionality during compilation.
  */
-#if __has_include("avr8-stub.h") || defined(AVR_STUB) || defined(AVR8_STUB)
+#if __has_include(<avr8-stub.h>) || defined(AVR_STUB) || defined(AVR8_STUB)
     #if !defined(AVR_DEBUG)
         #define AVR_DEBUG
     #endif
-#endif  // __has_include("avr8-stub.h") || defined(AVR_STUB) || defined(AVR8_STUB)
+#endif  // __has_include(<avr8-stub.h>) || defined(AVR_STUB) || defined(AVR8_STUB)
 
 /**
  * @def UIRB_CORE_LIB
