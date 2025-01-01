@@ -39,6 +39,7 @@
 #define UIRBcore_Defs_h
 
 #include <Arduino.h>
+#include <UIRBcore_Pins.h>
 
 /**
  * @def STR(x)
@@ -86,6 +87,77 @@
  * @name Core configuration
  * @{
  */
+
+/**
+ * @def AVR_DEBUG
+ * @brief Macro to indicate that AVR debugging is enabled.
+ * 
+ * This macro is defined only if debugging support is available in the current build environment.
+ * 
+ * @details 
+ * - If `avr8-stub.h` is included, or if either `AVR_STUB` or `AVR8_STUB` is defined,
+ *   the @ref AVR_DEBUG macro is automatically defined.
+ * - Ensures debugging functionality is enabled for AVR-based microcontrollers when appropriate.
+ * - Prevents redundant redefinition of @ref AVR_DEBUG using a conditional check.
+ */
+#if defined(__DOXYGEN__)
+    #define AVR_DEBUG
+    #undef AVR_DEBUG
+#endif  // defined(__DOXYGEN__)
+
+/**
+ * @def UIRB_CORE_LIB_DISABLE_AVR_STUB_DETECTION
+ * @brief Macro to disable automatic detection of the `avr8-stub.h` header.
+ * 
+ * This macro is defined to prevent the library from checking for the presence
+ * of `avr8-stub.h`. Related debugging macros (e.g., `AVR_STUB`, `AVR8_STUB`) are still checked.
+ * 
+ * @details
+ * - When defined, the library does not attempt to enable AVR debugging support
+ *   based on the inclusion of `avr8-stub.h`.
+ * - This can be useful in build environments where debugging support is not
+ *   required or where the `avr8-stub.h` header is present but not included.
+ * 
+ * @note Use this macro only if debugging support is not required and the header is explicitly not needed.
+ */
+#if defined(__DOXYGEN__)
+    #define UIRB_CORE_LIB_DISABLE_AVR_STUB_DETECTION
+    #undef UIRB_CORE_LIB_DISABLE_AVR_STUB_DETECTION
+#endif  // defined(__DOXYGEN__)
+
+/**
+ * @brief Enables AVR debugging support if certain conditions are met.
+ * 
+ * This block checks for the presence of debugging-related macros or headers,
+ * such as `avr8-stub.h`, `AVR_STUB`, or `AVR8_STUB`. If any of these are
+ * available, it ensures that the @ref AVR_DEBUG macro is defined.
+ * 
+ * @details
+ * - If the @ref UIRB_CORE_LIB_DISABLE_AVR_STUB_DETECTION macro is defined, 
+ *   the library skips detection of the `avr8-stub.h` header. However, it 
+ *   still checks for other related debugging macros (e.g., `AVR_STUB`, `AVR8_STUB`).
+ * - This allows developers to exclude the `avr8-stub.h` header while 
+ *   maintaining compatibility with other debugging options.
+ * 
+ * @note This configuration is used to enable AVR debugging functionality during compilation.
+ */
+#if (!defined(UIRB_CORE_LIB_DISABLE_AVR_STUB_HEADER_DETECTION) && __has_include(<avr8-stub.h>)) || defined(AVR_STUB) || defined(AVR8_STUB)
+    #if !defined(AVR_DEBUG)
+        #define AVR_DEBUG
+    #endif
+#endif  // __has_include(<avr8-stub.h>) || defined(AVR_STUB) || defined(AVR8_STUB)
+
+/**
+ * @def UIRB_CORE_LIB
+ * @brief Macro to indicate the inclusion of the %UIRB core library.
+ * 
+ * This macro is defined to indicate that the %UIRB core library is included in a
+ * single compilation unit.
+ */
+#if !defined(UIRB_CORE_LIB)
+    #define UIRB_CORE_LIB
+#endif  // UIRB_CORE_LIB
+
 /**
  * @def UIRB_CORE_LOW_BATTERY_VOLTAGE_MILIVOLTS
  * @brief Macro defining the minimum battery voltage considered "empty," in millivolts.

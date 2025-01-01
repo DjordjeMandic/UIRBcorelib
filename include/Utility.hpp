@@ -41,6 +41,10 @@
 
 #include <Arduino.h>
 
+#if !defined(INTERNAL1V1)
+    #define INTERNAL1V1 INTERNAL
+#endif
+
 /**
  * @brief Return value representing an invalid pin mode.
  * 

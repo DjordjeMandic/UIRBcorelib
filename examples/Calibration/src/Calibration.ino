@@ -55,6 +55,17 @@
 #include <UIRBcore.hpp>
 #include <Utility.hpp>
 
+#if defined(PLATFORMIO)
+#warning "This is a PlatformIO project. Please visit https://github.com/DjordjeMandic/UIRBpio for more details and latest boards definitions."
+#endif
+
+
+#if defined(MONITOR_SPEED)
+static constexpr unsigned long BAUD_RATE = MONITOR_SPEED;
+#else
+static constexpr unsigned long BAUD_RATE = 1000000;
+#endif
+
 using namespace uirbcore;
 
 /**
@@ -126,7 +137,7 @@ void printLnVoltages()
  */
 void setup()
 {
-    Serial.begin(1000000);
+    Serial.begin(BAUD_RATE);
     Serial.println(F("=== Internal 1.1V Reference Calibration ==="));
 
     if (!uirb.begin())

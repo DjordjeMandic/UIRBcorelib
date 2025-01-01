@@ -22,7 +22,7 @@ This library is designed with PlatformIO in mind and requires the **uirb-v02-atm
 To use UIRBcore, ensure you have the following:
 
 1. [PlatformIO](https://platformio.org/) installed.
-2. The custom board definition for **uirb-v02-atmega328p** installed. You will need to provide a path to the definition during project setup. (A repository link with more information will be added here in the future.)
+2. The custom board definition for **uirb-v02-atmega328p** installed. You will need to provide a path to the definition during project setup. Visit the [UIRB PlatformIO Example Project Repository](https://github.com/DjordjeMandic/UIRBpio) for more information.
 
 ---
 
@@ -32,12 +32,14 @@ To use UIRBcore, ensure you have the following:
 
 Add UIRBcore to your `platformio.ini` file using one of the following approaches:
 
+> **Tip:** Learn more about semantic versioning at [devhints.io/semver](https://devhints.io/semver) and [semver.org](https://semver.org/).
+
 ```ini
 lib_deps =
-    djordjemandic/UIRBcorelib @ ^1.1.1  ; Depend on the latest 1.x stable version
+    djordjemandic/UIRBcorelib @ ^1.2.0  ; Depend on the latest 1.x stable version
 ```
 
-> **Tip:** Learn more about semantic versioning at [devhints.io/semver](https://devhints.io/semver) and [semver.org](https://semver.org/).
+> **Tip:** Discover more about specifying packages in PlatformIO by visiting the [official documentation on package specifications](https://docs.platformio.org/en/latest/core/userguide/pkg/cmd_install.html#package-specifications).
 
 ```ini
 lib_deps =
@@ -46,10 +48,8 @@ lib_deps =
 
 ```ini
 lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.1.1  ; Depend on the v1.1.1 Git tag
+    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.2.0  ; Depend on the v1.2.0 Git tag
 ```
-
-> **Tip:** Discover more about specifying packages in PlatformIO by visiting the [official documentation on package specifications](https://docs.platformio.org/en/latest/core/userguide/pkg/cmd_install.html#package-specifications).
 
 ### Manually
 
@@ -61,6 +61,10 @@ lib_deps =
 ## Usage
 
 Here’s a quick example of how to initialize the UIRBcore library:
+
+> **Important:** The ATMEGA328P EEPROM must store a valid hardware version for the UIRB constructor to initialize correctly. If the EEPROM does not contain valid data, the constructor will cause the system to hang and reboot.
+
+> **Note:** For IR signal transmission and reception, use compatible external libraries.
 
 ```cpp
 #include <Arduino.h>
@@ -92,10 +96,6 @@ void loop()
 }
 ```
 
-> **Important:** The ATMEGA328P EEPROM must store a valid hardware version for the UIRB constructor to initialize correctly. If the EEPROM does not contain valid data, the constructor will cause the system to hang and reboot.
-
-> **Note:** For IR signal transmission and reception, use compatible external libraries.
-
 ---
 
 ## Examples
@@ -112,11 +112,15 @@ These examples are located within the [`examples`](./examples) folder of the lib
 
 ## Configuration
 
+> **Limitation:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation. However, this limitation can be mitigated using `#define UIRB_EEPROM_BYPASS_DEBUG` and `#define UIRB_EEPROM_RPROG_DEBUG`.
+
 The library uses fixed pin assignments predefined for the UIRB V0.2 board. Refer to the source code for exact pin mappings.
 
 ---
 
 ## Doxygen Documentation and Scripts
+
+> **Note:** All scripts should be executed from the root of the repository.
 
 ### Version Management
 
@@ -130,6 +134,12 @@ python ./scripts/update_version.py
 
 This project uses Doxygen for documentation. Use the script [`doxygen_generate.ps1`](./scripts/doxygen_generate.ps1) to generate the documentation:
 
+> **Details:**
+> - **UpdateVersion**: Updates the `UIRBcore_Version.h` file using `update_version.py`.
+> - **OpenHTML**: Opens the `index.html` file in the `docs/html` directory after successful generation.
+> - Ensure the script and its dependencies (`git_info.ps1`, `update_version.py`) are properly configured and placed in the `scripts` directory.
+> - Requires Git, Python, and Doxygen installed and accessible via the command line.
+
 ```powershell
 pwsh ./scripts/doxygen_generate.ps1 Doxyfile -OpenHTML
 ```
@@ -137,16 +147,6 @@ pwsh ./scripts/doxygen_generate.ps1 Doxyfile -OpenHTML
 ```powershell
 pwsh ./scripts/doxygen_generate.ps1 Doxyfile -UpdateVersion -OpenHTML
 ```
-
-> **Details:**
-> - **UpdateVersion**: Updates the `UIRBcore_Version.h` file using `update_version.py`.
-> - **OpenHTML**: Opens the `index.html` file in the `docs/html` directory after successful generation.
-> - Ensure the script and its dependencies (`git_info.ps1`, `update_version.py`) are properly configured and placed in the `scripts` directory.
-> - Requires Git, Python, and Doxygen installed and accessible via the command line.
-
-> **Note:** All scripts should be executed from the root of the repository.
-
-> **Limitation:** Simulation using simavr in PlatformIO is not supported because there is currently no method to pre-load EEPROM data before the simulation. However, this limitation can be mitigated using `#define UIRB_EEPROM_BYPASS_DEBUG` and `#define UIRB_EEPROM_RPROG_DEBUG`.
 
 ---
 
@@ -169,4 +169,5 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ---
 
-_For more information about the custom board definition and the hardware design, a dedicated repository link will be added here soon._
+_For more information about the custom board definition, visit the [UIRBpio GitHub repository](https://github.com/DjordjeMandic/UIRBpio)._
+
