@@ -17,16 +17,6 @@ def get_git_version():
     except subprocess.CalledProcessError:
         raise Exception("Unable to retrieve Git version. Ensure this is a Git repository.")
 
-def get_repo_root():
-    """
-    Retrieves the root directory of the Git repository.
-    """
-    try:
-        repo_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
-        return repo_root
-    except subprocess.CalledProcessError:
-        raise Exception("Unable to determine the repository root. Ensure this is a Git repository.")
-
 def read_header_file(file_path):
     """
     Reads the contents of the header file.
@@ -71,12 +61,9 @@ def main():
         # Print the current directory
         current_dir = os.getcwd()
         log_message(f"Current Directory: {current_dir}")
-
-        # Determine the repository root
-        repo_root = get_repo_root()
         
         # Path to the header file
-        header_file_path = os.path.join(repo_root, "include", "UIRBcore_Version.h")
+        header_file_path = os.path.join(current_dir, "include", "UIRBcore_Version.h")
 
         # Get the latest version from Git
         git_version = get_git_version()
