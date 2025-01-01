@@ -1,0 +1,49 @@
+{
+    "build": {
+        "core": "MiniCore",
+        "extra_flags": [
+            "-DARDUINO_AVR_ATmega328P",
+            "-DAVR8_USER_BAUDRATE=1000000",
+            "-DAVR8_SWINT_SOURCE=1",
+            "-DUIRB_BOARD_V02"
+        ],
+        "hwids": [
+            ["0x10C4", "0xEA60"],
+            ["0x10C4", "0xEA63"]
+        ],
+        "f_cpu": "8000000L",
+        "mcu": "atmega328p",
+        "variant": "standard"
+    },
+    "hardware": {
+        "oscillator": "external",
+        "uart": "uart0",
+        "bod": "2.7v",
+        "eesave": "yes",
+        "ckout": "no"
+    },
+    "bootloader": {
+        "type": "urboot",
+        "led_pin": "B5",
+        "uart0_pins": "uart0_rxd0_txd1",
+        "speed": 1000000
+    },
+    "debug": {
+        "simavr_target": "atmega328p",
+        "avr-stub": {
+            "speed": 1000000
+        }
+    },
+    "frameworks": [ "arduino" ],
+    "platforms": [ "atmelavr" ],
+    "name": "Universal IR Blaster V0.2",
+    "upload": {
+        "maximum_ram_size": 2048,
+        "maximum_size": 32768,
+        "protocol": "urclock",
+        "require_upload_port": true,
+        "speed": 1000000
+    },
+    "url": "https://www.github.com/DjordjeMandic/Universal-IR-Blaster/Hardware/v02",
+    "vendor": "Djordje Mandic"
+}

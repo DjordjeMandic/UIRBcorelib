@@ -53,6 +53,17 @@
 #include <Arduino.h>
 #include <UIRBcore.hpp>
 
+#if defined(PLATFORMIO)
+#warning "This is a PlatformIO project. Please visit https://github.com/DjordjeMandic/UIRBpio for more details and latest boards definitions."
+#endif
+
+/* Define the baud rate for serial communication */
+#if defined(MONITOR_SPEED)
+static constexpr unsigned long BAUD_RATE = MONITOR_SPEED;  // Use user-defined monitor speed if available
+#else
+static constexpr unsigned long BAUD_RATE = 1000000;  // Default baud rate: 1M BAUD
+#endif  // !defined(MONITOR_SPEED)
+
 /* Use namespace to prevent typing uirbcore:: before each member. */
 using namespace uirbcore;
 
@@ -102,7 +113,7 @@ void io3WakeupCallback()
  */
 void setup()
 {
-    Serial.begin(1000000);
+    Serial.begin(BAUD_RATE);
     Serial.println(F("UIRBcore basic example"));
 
     
