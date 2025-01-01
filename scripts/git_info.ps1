@@ -46,7 +46,7 @@ switch ($Operation) {
         .OUTPUTS
             The project version string or commit hash.
         #>
-        $projVer = git describe --tags --dirty --always 2>$null
+        $projVer = git describe --git-dir=./.git --work-tree=. --tags --dirty --always 2>$null
         if (-not $projVer) {
             Write-Output "Unable to retrieve project version. Ensure this is a Git repository."
             exit 1
