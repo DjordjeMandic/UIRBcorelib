@@ -13,7 +13,7 @@ def get_git_version():
     Retrieves the latest Git tag or commit hash, appending 'dirty' if there are uncommitted changes.
     """
     try:
-        return subprocess.check_output(["git", "describe", "--tags", "--dirty", "--always"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
+        return subprocess.check_output(["git", "--git-dir=./.git", "--work-tree=.", "describe", "--tags", "--dirty", "--always"], stderr=subprocess.DEVNULL).strip().decode("utf-8")
     except subprocess.CalledProcessError:
         raise Exception("Unable to retrieve Git version. Ensure this is a Git repository.")
 
@@ -62,12 +62,17 @@ def main():
         current_dir = os.getcwd()
         log_message(f"Current Directory: {current_dir}")
         
+        # Get the folder name of the current directory
+        folder_name = os.path.basename(current_dir)
+        if folder_name != "UIRBcorelib":
+            log_message(f"Warning: The current directory {current_dir} does not match the expected folder name 'UIRBcorelib'.")
+        
         # Path to the header file
         header_file_path = os.path.join(current_dir, "include", "UIRBcore_Version.h")
 
         # Get the latest version from Git
         git_version = get_git_version()
-        log_message(f"Git Tag Version: {git_version}")
+        log_message(f"Git Describe Output: {git_version}")
 
         # Read the header file
         content = read_header_file(header_file_path)
