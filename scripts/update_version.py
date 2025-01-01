@@ -68,6 +68,10 @@ def write_header_file(file_path, content):
 
 def main():
     try:
+        # Print the current directory
+        current_dir = os.getcwd()
+        log_message(f"Current Directory: {current_dir}")
+
         # Determine the repository root
         repo_root = get_repo_root()
         
