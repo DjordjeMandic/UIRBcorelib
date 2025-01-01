@@ -1,4 +1,0 @@
-examples platformio.ini boards json
-possibly add a postinstlal script that will download boards json from UIRBpio repo and put it inside examples boards
-
-update platformio ini for each example
