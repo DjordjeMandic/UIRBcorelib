@@ -22,7 +22,7 @@ This library is designed with PlatformIO in mind and requires the **uirb-v02-atm
 To use UIRBcore, ensure you have the following:
 
 1. [PlatformIO](https://platformio.org/) installed.
-2. The custom board definition for **uirb-v02-atmega328p** installed. You will need to provide a path to the definition during project setup. (A repository link with more information will be added here in the future.)
+2. The custom board definition for **uirb-v02-atmega328p** installed. You will need to provide a path to the definition during project setup. Visit the [UIRB PlatformIO Example Project Repository](https://github.com/DjordjeMandic/UIRBpio) for more information.
 
 ---
 
@@ -169,4 +169,5 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ---
 
-_For more information about the custom board definition and the hardware design, a dedicated repository link will be added here soon._
+_For more information about the custom board definition, visit the [UIRBpio GitHub repository](https://github.com/DjordjeMandic/UIRBpio)._
+
