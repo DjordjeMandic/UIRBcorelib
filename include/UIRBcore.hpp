@@ -63,6 +63,11 @@
  * @brief Example demonstrating the calibration and usage of the 1.1V internal reference using the UIRBcore library.
  */
 
+/**
+ * @example examples/BypassEEPROM/src/BypassEEPROM.ino
+ * @brief Example showcasing EEPROM bypass and debugging features of the UIRBcore library in a simulated environment.
+ */
+
 #ifndef UIRBcore_hpp
 #define UIRBcore_hpp
 

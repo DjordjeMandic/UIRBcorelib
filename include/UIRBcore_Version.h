@@ -85,7 +85,7 @@
      * 
      * @see https://git-scm.com/docs/git-describe for details about the `git describe` command.
      */
-    #define UIRB_CORE_LIB_VER_STR "v1.2.1"
+    #define UIRB_CORE_LIB_VER_STR "v1.2.2"
 
     #if defined(UIRB_CORE_LIB_MAJOR)
         #undef UIRB_CORE_LIB_MAJOR
@@ -126,7 +126,7 @@
      * The patch version number indicates backward-compatible bug fixes or minor updates
      * that do not introduce new features. Incrementing this number signals a patch release.
      */
-    #define UIRB_CORE_LIB_PATCH (1)
+    #define UIRB_CORE_LIB_PATCH (2)
 
 #else  // defined(UIRB_CORE_LIB)
 
