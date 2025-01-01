@@ -72,48 +72,6 @@
     #error "Unsupported platform."
 #endif  // !defined(ARDUINO_ARCH_AVR) || !defined(__AVR_ATmega328P__) 
 
-/**
- * @def AVR_DEBUG
- * @brief Macro to indicate that AVR debugging is enabled.
- * 
- * This macro is defined only if debugging support is available in the current build environment.
- * 
- * @details 
- * - If `avr8-stub.h` is included, or if either `AVR_STUB` or `AVR8_STUB` is defined,
- *   the @ref AVR_DEBUG macro is automatically defined.
- * - Ensures debugging functionality is enabled for AVR-based microcontrollers when appropriate.
- * - Prevents redundant redefinition of @ref AVR_DEBUG using a conditional check.
- */
-#if defined(__DOXYGEN__)
-    #define AVR_DEBUG ///< Macro for AVR debugging support.
-#endif
-
-/**
- * @brief Enables AVR debugging support if certain conditions are met.
- * 
- * This block checks for the presence of debugging-related macros or headers,
- * such as `avr8-stub.h`, `AVR_STUB`, or `AVR8_STUB`. If any of these are
- * available, it ensures that the @ref AVR_DEBUG macro is defined.
- * 
- * @note This configuration is used to enable AVR debugging functionality during compilation.
- */
-#if __has_include(<avr8-stub.h>) || defined(AVR_STUB) || defined(AVR8_STUB)
-    #if !defined(AVR_DEBUG)
-        #define AVR_DEBUG
-    #endif
-#endif  // __has_include(<avr8-stub.h>) || defined(AVR_STUB) || defined(AVR8_STUB)
-
-/**
- * @def UIRB_CORE_LIB
- * @brief Macro to indicate the inclusion of the %UIRB core library.
- * 
- * This macro is defined to indicate that the %UIRB core library is included in a
- * single compilation unit.
- */
-#if !defined(UIRB_CORE_LIB)
-    #define UIRB_CORE_LIB
-#endif  // UIRB_CORE_LIB
-
 #include <UIRBcore_Defs.h>
 #include <UIRBcore_Pins.h>
 #include <UIRBcore_Version.h>
