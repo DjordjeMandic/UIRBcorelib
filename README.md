@@ -36,7 +36,7 @@ Add UIRBcore to your `platformio.ini` file using one of the following approaches
 
 ```ini
 lib_deps =
-    djordjemandic/UIRBcorelib @ ^1.2.2  ; Depend on the latest 1.x stable version
+    djordjemandic/UIRBcorelib @ ^1.2.3  ; Depend on the latest 1.x stable version
 ```
 
 > **Tip:** Discover more about specifying packages in PlatformIO by visiting the [official documentation on package specifications](https://docs.platformio.org/en/latest/core/userguide/pkg/cmd_install.html#package-specifications).
@@ -48,7 +48,7 @@ lib_deps =
 
 ```ini
 lib_deps =
-    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.2.2  ; Depend on the v1.2.2 Git tag
+    https://github.com/DjordjeMandic/UIRBcorelib.git#v1.2.3  ; Depend on the v1.2.3 Git tag
 ```
 
 ### Manually
