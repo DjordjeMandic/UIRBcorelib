@@ -45,6 +45,8 @@
 #ifndef UIRBcore_Pins_h
 #define UIRBcore_Pins_h
 
+#include <Arduino.h>
+
 /**
  * @def UIRB_BOARD_V02
  * @brief Macro indicating the hardware version of the %UIRB board.
